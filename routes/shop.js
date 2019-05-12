@@ -1,9 +1,11 @@
+const path = require('path');
 const express = require('express');
 
 const router = express.Router();
+const rootDir = require('../utils/path');
 
 router.get('/', (req, resp, next) => {
-    resp.send('We are in the index Page');
+    resp.sendFile(path.join(rootDir,'views', 'index.html'));
 });
 
 
