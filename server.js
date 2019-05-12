@@ -16,6 +16,9 @@ const shopRoutes = require('./routes/shop');
  * Routes
  */
 
+ // public files route
+app.use(express.static(path.join(rootDir,'public')));
+
  // Admin Route 
 app.use('/admin',adminRoutes);
 // Public Route
