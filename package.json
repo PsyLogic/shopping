@@ -1,0 +1,27 @@
+{
+  "name": "shopping",
+  "version": "1.0.0",
+  "description": "Shopping application with NodeJS/GraphQL/MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "serve": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "graphql",
+    "mongodb",
+    "express",
+    "apollo",
+    "html",
+    "css"
+  ],
+  "author": "Othmane Nemli",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.16.4",
+    "jshint": "^2.10.2",
+    "nodemon": "^1.19.0"
+  }
+}
