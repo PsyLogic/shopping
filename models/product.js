@@ -4,6 +4,7 @@ const products = [];
 
 module.exports = class Product {
   constructor(title, imageUrl, description, price) {
+    this.id = products.length + 1;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
@@ -19,6 +20,17 @@ module.exports = class Product {
 
   static all() {
     // Get All Products
+    return products;
+  }
+
+  static get(id) {
+    return products.find(product => product.id === id);
+  }
+
+  static delete(id) {
+    let index = products.findIndex(product => product.id === parseInt(id));
+    products.splice(index, 1);
+
     return products;
   }
 };

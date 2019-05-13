@@ -11,9 +11,11 @@ exports.index = (req, resp, next) => {
 };
 
 exports.show = (req, resp, next) => {
+  const product = Product.get(parseInt(req.params.id));
   resp.render("shop/product-detail", {
     pageTitle: "Product Detail",
-    path: "/admin/product-detail"
+    path: "shop/product-detail",
+    product
   });
 };
 
@@ -25,21 +27,30 @@ exports.create = (req, resp, next) => {
 };
 
 exports.store = (req, resp, next) => {
-  console.log(req.body.title);
-
-  const product = new Product(req.body.title);
+  const title = req.body.title;
+  const imageUrl = req.body.imageUrl;
+  const price = req.body.price;
+  const description = req.body.description;
+  const product = new Product(title, imageUrl, description, price);
   product.save();
 
   resp.redirect("/");
 };
 
 exports.edit = (req, resp, next) => {
+  const product = Product.get(parseInt(req.params.id));
   resp.render("admin/edit-product", {
     pageTitle: "Edit Product",
-    path: "/admin/edit-product"
+    path: "/admin/edit-product",
+    product
   });
 };
 
 exports.update = (req, resp, next) => {
   resp.redirect("/");
+};
+
+exports.destroy = (req, resp, next) => {
+  Product.delete(req.params.id);
+  resp.redirect("/admin/products");
 };
