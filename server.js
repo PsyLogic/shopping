@@ -2,6 +2,8 @@ const path = require("path");
 const express = require("express");
 const bodyParder = require("body-parser");
 
+const mongoConnection = require("./utils/database").MongoConnection;
+const User = require("./models/user");
 const app = express();
 
 /**
@@ -25,6 +27,17 @@ const shopRoutes = require("./routes/shop");
 // public files route
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req, resp, next) => {
+  User.get("5cdae8bc1c9d440000238ba5")
+    .then(user => {
+      // console.log(user);
+      req.user = new User(user.username, user.email, user.cart, user._id);
+      next();
+    })
+    .catch(err => {
+      throw err;
+    });
+});
 // Admin Route
 app.use("/admin", adminRoutes);
 // Public Route
@@ -37,6 +50,9 @@ app.use((req, resp, next) => {
     .render("errors/404", { pageTitle: "Page Not Found", path: "/" });
 });
 // Listner
-app.listen(3000, () => {
-  console.log("Listening now on PORT 3000");
+
+mongoConnection(() => {
+  app.listen(3000, () => {
+    console.log("Listening now on PORT 3000");
+  });
 });

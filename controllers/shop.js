@@ -1,13 +1,18 @@
 const Product = require("../models/product");
+const Cart = require("../models/cart");
 
 exports.index = (req, resp, next) => {
-  const products = Product.all();
-
-  resp.render("shop/product-list", {
-    pageTitle: "Product List",
-    path: "/",
-    products
-  });
+  Product.all()
+    .then(products => {
+      resp.render("shop/index", {
+        pageTitle: "Product List",
+        path: "/",
+        products
+      });
+    })
+    .catch(err => {
+      throw err;
+    });
 };
 
 exports.cart = (req, resp, next) => {
@@ -18,24 +23,25 @@ exports.cart = (req, resp, next) => {
 };
 
 exports.addToCart = (req, resp, next) => {
-  // Check if product exists
-  // find the product in the cart
-  // if it is exists increment the quantity
-  // otherwise add it to cart
-
-  resp.redirect("/cart");
+  const productId = req.body.productID;
+  Product.get(productId)
+    .then(product => req.user.addToCart(product))
+    .then(result => console.log(result))
+    .catch(err => {
+      throw err;
+    });
 };
 
-exports.orders = (req, resp, next) => {
-  resp.render("shop/orders", {
-    pageTitle: "Your Orders",
-    path: "shop/orders"
-  });
-};
+// exports.orders = (req, resp, next) => {
+//   resp.render("shop/orders", {
+//     pageTitle: "Your Orders",
+//     path: "shop/orders"
+//   });
+// };
 
-exports.checkOut = (req, resp, next) => {
-  resp.render("shop/checkout", {
-    pageTitle: "Product List",
-    path: "shop/checkout"
-  });
-};
+// exports.checkOut = (req, resp, next) => {
+//   resp.render("shop/checkout", {
+//     pageTitle: "Product List",
+//     path: "shop/checkout"
+//   });
+// };

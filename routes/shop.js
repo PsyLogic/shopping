@@ -9,7 +9,7 @@ router.get("/products", shopController.index);
 router.get("/product-detail/:id", productController.show);
 router.get("/cart", shopController.cart);
 router.post("/cart", shopController.addToCart);
-router.get("/orders", shopController.orders);
-router.get("/checkout", shopController.checkOut);
+// router.get("/orders", shopController.orders);
+// router.get("/checkout", shopController.checkOut);
 
 module.exports = router;
