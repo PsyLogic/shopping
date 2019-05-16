@@ -9,7 +9,9 @@ router.get("/products", shopController.index);
 router.get("/product-detail/:id", productController.show);
 router.get("/cart", shopController.cart);
 router.post("/cart", shopController.addToCart);
-// router.get("/orders", shopController.orders);
+router.post("/cart-delete-item", shopController.deleteCartItem);
+router.get("/orders", shopController.orders);
+router.post("/create-order", shopController.addOrders);
 // router.get("/checkout", shopController.checkOut);
 
 module.exports = router;
