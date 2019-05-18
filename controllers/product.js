@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 
 exports.index = (req, resp, next) => {
-  Product.all()
+  Product.find()
     .then(products => {
       resp.render("admin/products", {
         pageTitle: "Product List",
@@ -15,7 +15,7 @@ exports.index = (req, resp, next) => {
 };
 
 exports.show = (req, resp, next) => {
-  Product.get(req.params.id)
+  Product.findById(req.params.id)
     .then(product => {
       resp.render("shop/product-detail", {
         pageTitle: "Product Detail",
@@ -36,25 +36,24 @@ exports.create = (req, resp, next) => {
 };
 
 exports.store = (req, resp, next) => {
-  const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
-  const description = req.body.description;
-  const product = new Product(
-    title,
-    imageUrl,
-    description,
-    price,
-    null,
-    req.user._id
-  );
-  product.save();
-  resp.redirect("/");
+  const product = new Product({
+    title: req.body.title,
+    imageUrl: req.body.imageUrl,
+    description: req.body.description,
+    price: req.body.price,
+    userId: req.user
+  })
+    .save()
+    .then(() => resp.redirect("/"))
+    .catch(err => {
+      throw err;
+    });
 };
 
 exports.edit = (req, resp, next) => {
-  Product.get(req.params.id)
+  Product.findById(req.params.id)
     .then(product => {
+      if (!product) return resp.redirect("/");
       resp.render("admin/edit-product", {
         pageTitle: "Edit Product",
         path: "/admin/edit-product",
@@ -72,23 +71,25 @@ exports.update = async (req, resp, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  try {
-    const found = await Product.get(id);
-    if (found) {
-      const product = new Product(title, imageUrl, description, price, id);
-      const saved = await product.save();
-      resp.redirect("/");
-    } else {
-      console.log("Book not found");
-      resp.redirect("/");
-    }
-  } catch (error) {
-    throw error;
-  }
+
+  Product.findById(id)
+    .then(product => {
+      product.title = title;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      product.price = price;
+      return product.save();
+    })
+    .then(() => resp.redirect("/"))
+    .catch(err => {
+      throw err;
+    });
 };
 
 exports.destroy = (req, resp, next) => {
-  const id = req.body.productID;
-  Product.delete(id);
-  resp.redirect("/admin/products");
+  Product.findByIdAndRemove(req.body.productID)
+    .then(() => resp.redirect("/admin/products"))
+    .catch(err => {
+      throw err;
+    });
 };

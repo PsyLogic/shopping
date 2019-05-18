@@ -1,8 +1,7 @@
 const path = require("path");
 const express = require("express");
 const bodyParder = require("body-parser");
-
-const mongoConnection = require("./utils/database").MongoConnection;
+const mongoose = require("mongoose");
 const User = require("./models/user");
 const app = express();
 
@@ -28,16 +27,16 @@ const shopRoutes = require("./routes/shop");
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((req, resp, next) => {
-  User.get("5cdae8bc1c9d440000238ba5")
+  User.findById("5cdd8d981c9d44000018bce5")
     .then(user => {
-      // console.log(user);
-      req.user = new User(user.username, user.email, user.cart, user._id);
+      req.user = user;
       next();
     })
     .catch(err => {
       throw err;
     });
 });
+
 // Admin Route
 app.use("/admin", adminRoutes);
 // Public Route
@@ -49,10 +48,19 @@ app.use((req, resp, next) => {
     .status(404)
     .render("errors/404", { pageTitle: "Page Not Found", path: "/" });
 });
-// Listner
 
-mongoConnection(() => {
-  app.listen(3000, () => {
-    console.log("Listening now on PORT 3000");
+// Listner
+mongoose
+  .connect(
+    "mongodb+srv://otmane:ev02xT3qPw2pvLlp@cluster0-yvclq.mongodb.net/shop?retryWrites=true",
+    { useNewUrlParser: true }
+  )
+  .then(() => {
+    console.log("Database connected");
+    app.listen(3000, () => {
+      console.log("Listening now on PORT 3000");
+    });
+  })
+  .catch(err => {
+    throw err;
   });
-});
