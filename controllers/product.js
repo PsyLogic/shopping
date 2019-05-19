@@ -31,7 +31,8 @@ exports.show = (req, resp, next) => {
 exports.create = (req, resp, next) => {
   resp.render("admin/add-product", {
     pageTitle: "Add Product",
-    path: "/admin/add-product"
+    path: "/admin/add-product",
+    isAuthenticated: req.session.isLoggedIn
   });
 };
 

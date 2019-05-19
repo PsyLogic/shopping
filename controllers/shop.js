@@ -92,5 +92,6 @@ exports.addOrders = (req, resp, next) => {
 //   resp.render("shop/checkout", {
 //     pageTitle: "Product List",
 //     path: "shop/checkout"
+//     isAuthenticated: req.session.isLoggedIn,
 //   });
 // };

@@ -1,10 +1,10 @@
 <%- include('../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/forms.css">
-    <link rel="stylesheet" href="/css/product.css">
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/product.css">
 </head>
 
 <body>
-   <%- include('../includes/navigation.ejs') %>
+    <%- include('../includes/navigation.ejs') %>
     <main>
         <form class="product-form" action="/admin/update-product" method="POST">
             <div class="form-control">
@@ -24,8 +24,8 @@
                 <textarea name="description" id="description" rows="5"><%= product.description %></textarea>
             </div>
             <input type="hidden" value="<%= product._id %>" name="productID">
-
+            <input type="hidden" name="_csrf" value="<%= csrfToken  %>">
             <button class="btn" type="submit">Update Product</button>
         </form>
     </main>
-<%- include('../includes/end.ejs') %>
+    <%- include('../includes/end.ejs') %>
