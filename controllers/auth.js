@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bycrypt = require("bcryptjs");
+const sendEmail = require("../utils/mail");
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
@@ -47,11 +48,12 @@ exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const confirmPassword = req.body.confirmPassword;
+
+  // Check Passwd confirmation
   if (password !== confirmPassword) {
     req.flash("error", "Passwords are not matched");
     return res.redirect("/singup");
   }
-  // Check Passwd confirmation
 
   User.findOne({ username: username })
     .then(user => {
@@ -72,6 +74,15 @@ exports.postSignup = (req, res, next) => {
     })
     .then(user => {
       res.redirect("/");
+      // We will put this method in the queue for Potential Limitation
+      // sendEmail({
+      //   from: '"Welcome" <info@example.com>',
+      //   to: `"${user.username}" <${user.email}>`,
+      //   subject: "Thank you for registration <3",
+      //   text: "Welcome you can now login to your account!!",
+      //   html: `Welcome you can now login to your account!<br>
+      //         Username: <b>${user.username}</b> Or <b>${user.email}</b>`
+      // });
     })
     .catch(err => console.log(err));
 };
