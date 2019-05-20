@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 const User = require("../models/user");
 const bycrypt = require("bcryptjs");
 const sendEmail = require("../utils/mail");
@@ -26,7 +28,7 @@ exports.postLogin = (req, res, next) => {
   const username_email = req.body.username_email;
   const password = req.body.password;
   User.findOne({
-    username: username_email
+    $or: [{ username: username_email }, { email: username_email }]
   })
     .then(user => {
       if (!user || !bycrypt.compareSync(password, user.password)) {
@@ -55,7 +57,9 @@ exports.postSignup = (req, res, next) => {
     return res.redirect("/singup");
   }
 
-  User.findOne({ username: username })
+  User.findOne({
+    $or: [{ username: username_email }, { email: username_email }]
+  })
     .then(user => {
       if (user) {
         req.flash("error", "Username already exists");
@@ -92,4 +96,100 @@ exports.postLogout = (req, res, next) => {
     console.log(err);
     res.redirect("/");
   });
+};
+
+exports.getReset = (req, res, next) => {
+  let message = req.flash("error");
+  message = message.length > 0 ? message[0] : false;
+  res.render("auth/reset", {
+    path: "/reset-password",
+    pageTitle: "Reset Password",
+    message: message
+  });
+};
+
+exports.postReset = (req, res, next) => {
+  const email = req.body.email;
+  let token = "";
+  User.findOne({ email: email })
+    .then(user => {
+      if (!user) {
+        req.flash("error", "Email is not in our records");
+        return res.redirect("/reset-password");
+      }
+      token = crypto.randomBytes(32).toString("hex");
+      user.resetToken = token;
+      user.resetTokenExp = Date.now() + 3600000;
+      return user.save();
+    })
+    .then(savedUser => {
+      sendEmail({
+        from: '"Security <security@example.com>',
+        to: `"${savedUser.username}" <${savedUser.email}>`,
+        subject: "Password Forgotten ?",
+        html: `Please, <a href="http://localhost:3000/update-password/${token}">Click Here</a> to reset your password`
+      });
+
+      req.flash(
+        "error",
+        "A link was sent to your email to reset your password"
+      );
+      return res.redirect("/reset-password");
+    })
+    .catch(err => console.log(err));
+};
+
+exports.getUpdatePassword = (req, res, next) => {
+  let message = req.flash("error");
+  message = message.length > 0 ? message[0] : false;
+
+  User.findOne({
+    resetToken: req.params.token,
+    resetTokenExp: { $gt: Date.now() }
+  })
+    .then(user => {
+      if (!user) {
+        req.flash("error", "Your Link is invalid or it's expired");
+        return res.redirect("/reset-password");
+      }
+
+      res.render("auth/update-password", {
+        path: "/update-password",
+        pageTitle: "Update Your password",
+        userid: user._id,
+        message: message
+      });
+    })
+    .catch(err => {
+      throw err;
+    });
+};
+
+exports.postUpdatePassword = (req, res, next) => {
+  const id = req.body.userId;
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+
+  // Check Passwd confirmation
+  if (password !== confirmPassword) {
+    req.flash("error", "Passwords are not matched");
+    return res.redirect("back");
+  }
+
+  User.findById(id)
+    .then(user => {
+      const hashedPassword = bycrypt.hashSync(password, 12);
+      user.password = hashedPassword;
+      user.resetToken = "";
+      user.resetTokenExp = "";
+      return user.save();
+    })
+    .then(user => {
+      req.flash(
+        "error",
+        "Congratulation, You can login wiht your new Password"
+      );
+      res.redirect("/login");
+    })
+    .catch(err => console.log(err));
 };
