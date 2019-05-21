@@ -4,8 +4,7 @@
   "description": "Shopping application with NodeJS/GraphQL/MongoDB",
   "main": "server.js",
   "scripts": {
-    "serve": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "nodemon -r dotenv/config server.js"
   },
   "keywords": [
     "nodejs",
@@ -27,10 +26,13 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "express-session": "^1.16.1",
-    "jshint": "^2.10.2",
     "mongodb": "^3.2.4",
     "mongoose": "^5.5.8",
     "nodemailer": "^6.1.1",
     "nodemon": "^1.19.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.0.0",
+    "jshint": "^2.10.2"
   }
 }

@@ -123,13 +123,15 @@ exports.postReset = (req, res, next) => {
       return user.save();
     })
     .then(savedUser => {
-      sendEmail({
+      return sendEmail({
         from: '"Security <security@example.com>',
         to: `"${savedUser.username}" <${savedUser.email}>`,
         subject: "Password Forgotten ?",
         html: `Please, <a href="http://localhost:3000/update-password/${token}">Click Here</a> to reset your password`
       });
-
+    })
+    .then(info => {
+      console.log(info);
       req.flash(
         "error",
         "A link was sent to your email to reset your password"

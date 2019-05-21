@@ -10,10 +10,8 @@ const flash = require("connect-flash")();
 
 const User = require("./models/user");
 const app = express();
-const MONGO_URI =
-  "mongodb+srv://otmane:ev02xT3qPw2pvLlp@cluster0-yvclq.mongodb.net/shop";
 const store = new MongoDBStore({
-  uri: MONGO_URI,
+  uri: process.env.MONGO_URI,
   collection: "sessions"
 });
 
@@ -92,11 +90,12 @@ app.use((req, resp, next) => {
 
 // Listner
 mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true })
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true })
   .then(() => {
     console.log("Database connected");
-    app.listen(3000, () => {
-      console.log("Listening now on PORT 3000");
+    const PORT = process.env.PORT_SERVER || 3000;
+    app.listen(PORT, () => {
+      console.log("Listening now on PORT " + PORT);
     });
   })
   .catch(err => {
