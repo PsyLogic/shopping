@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 
 exports.index = (req, resp, next) => {
-  Product.find()
+  Product.find({ userId: req.user._id })
     .then(products => {
       resp.render("admin/products", {
         pageTitle: "Product List",
@@ -31,8 +31,7 @@ exports.show = (req, resp, next) => {
 exports.create = (req, resp, next) => {
   resp.render("admin/add-product", {
     pageTitle: "Add Product",
-    path: "/admin/add-product",
-    isAuthenticated: req.session.isLoggedIn
+    path: "/admin/add-product"
   });
 };
 
@@ -52,7 +51,10 @@ exports.store = (req, resp, next) => {
 };
 
 exports.edit = (req, resp, next) => {
-  Product.findById(req.params.id)
+  Product.findOne({
+    userId: req.user._id,
+    _id: req.params.id
+  })
     .then(product => {
       if (!product) return resp.redirect("/");
       resp.render("admin/edit-product", {
@@ -73,8 +75,12 @@ exports.update = async (req, resp, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  Product.findById(id)
+  Product.findOne({
+    userId: req.user._id,
+    _id: id
+  })
     .then(product => {
+      if (!product) return resp.redirect("/");
       product.title = title;
       product.imageUrl = imageUrl;
       product.description = description;
@@ -88,7 +94,10 @@ exports.update = async (req, resp, next) => {
 };
 
 exports.destroy = (req, resp, next) => {
-  Product.findByIdAndRemove(req.body.productID)
+  Product.deleteOne({
+    userId: req.user._id,
+    _id: req.body.productID
+  })
     .then(() => resp.redirect("/admin/products"))
     .catch(err => {
       throw err;
