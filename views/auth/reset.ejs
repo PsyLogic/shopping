@@ -7,12 +7,16 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <% if(message) {%>
-        <div class="user-message user-message--error"><%= message %></div>
+        <% if(typeof messages != 'undefined') { %>
+        <div class="user-message user-message--error">
+            <%for(error of messages){%>
+            <p><%= error %></p>
+            <% } %>
+        </div>
         <% } %>
         <form class="login-form" action="/reset-password" method="POST">
             <div class="form-control">
-                <label for="email">Username/Email</label>
+                <label for="email">Email</label>
                 <input type="email" name="email" id="email">
             </div>
             <input type="hidden" name="_csrf" value="<%= csrfToken  %>">

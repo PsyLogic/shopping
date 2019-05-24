@@ -63,7 +63,7 @@ app.use((req, resp, next) => {
       next();
     })
     .catch(err => {
-      throw err;
+      next(new Error(err));
     });
 });
 
@@ -86,6 +86,12 @@ app.use((req, resp, next) => {
   resp
     .status(404)
     .render("errors/404", { pageTitle: "Page Not Found", path: "/" });
+});
+
+app.use((error, req, res, nex) => {
+  res
+    .status(500)
+    .render("errors/500", { pageTitle: "Internal Error", path: "/" });
 });
 
 // Listner

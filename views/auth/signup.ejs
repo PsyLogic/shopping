@@ -7,14 +7,22 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
+        <% if(typeof messages != 'undefined') { %>
+        <div class="user-message user-message--error">
+            <%for(error of messages){%>
+            <p><%= error %></p>
+            <% } %>
+        </div>
+        <% } %>
         <form class="login-form" action="/signup" method="POST">
             <div class="form-control">
                 <label for="username">Username</label>
-                <input type="text" name="username" id="username">
+                <input type="text" name="username" id="username"
+                    value="<%= (typeof old != 'undefined') ? old.username : '' %>">
             </div>
             <div class="form-control">
                 <label for="email">E-Mail</label>
-                <input type="email" name="email" id="email">
+                <input type="email" name="email" id="email" value="<%= (typeof old != 'undefined') ? old.email : '' %>">
             </div>
             <div class="form-control">
                 <label for="password">Password</label>
