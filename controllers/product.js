@@ -1,5 +1,6 @@
 const Product = require("../models/product");
-
+const { deleteFile } = require("../utils/file");
+const { storage } = require("../config/storage");
 exports.index = (req, resp, next) => {
   Product.find({ userId: req.user._id })
     .then(products => {
@@ -36,18 +37,28 @@ exports.create = (req, resp, next) => {
 };
 
 exports.store = (req, resp, next) => {
-  const product = new Product({
-    title: req.body.title,
-    imageUrl: req.body.imageUrl,
-    description: req.body.description,
-    price: req.body.price,
-    userId: req.user
-  })
-    .save()
-    .then(() => resp.redirect("/"))
-    .catch(err => {
-      throw err;
+  const image = req.file;
+  if (!image) {
+    resp.render("admin/add-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      messages: ["Image is required"],
+      old: req.body
     });
+  } else {
+    const product = new Product({
+      title: req.body.title,
+      imageUrl: image.filename,
+      description: req.body.description,
+      price: req.body.price,
+      userId: req.user
+    })
+      .save()
+      .then(() => resp.redirect("/"))
+      .catch(err => {
+        next(err);
+      });
+  }
 };
 
 exports.edit = (req, resp, next) => {
@@ -68,13 +79,13 @@ exports.edit = (req, resp, next) => {
     });
 };
 
-exports.update = async (req, resp, next) => {
+exports.update = (req, resp, next) => {
   const id = req.body.productID;
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price;
   const description = req.body.description;
-
+  let oldImageName;
   Product.findOne({
     userId: req.user._id,
     _id: id
@@ -82,24 +93,37 @@ exports.update = async (req, resp, next) => {
     .then(product => {
       if (!product) return resp.redirect("/");
       product.title = title;
-      product.imageUrl = imageUrl;
+      if (image) {
+        // delete old image
+        oldImageName = product.imageUrl;
+        product.imageUrl = image.filename;
+      }
       product.description = description;
       product.price = price;
       return product.save();
     })
-    .then(() => resp.redirect("/"))
+    .then(() => {
+      if (image) {
+        deleteFile(storage.imagePath + "/" + oldImageName);
+      }
+      resp.redirect("/");
+    })
     .catch(err => {
-      throw err;
+      next(err);
     });
 };
 
 exports.destroy = (req, resp, next) => {
-  Product.deleteOne({
+  Product.findOneAndDelete({
     userId: req.user._id,
     _id: req.body.productID
   })
-    .then(() => resp.redirect("/admin/products"))
+    .then(prod => {
+      // after product is deleted, remove related images
+      deleteFile(storage.imagePath + "/" + prod.imageUrl);
+      resp.redirect("/admin/products");
+    })
     .catch(err => {
-      throw err;
+      next(err);
     });
 };

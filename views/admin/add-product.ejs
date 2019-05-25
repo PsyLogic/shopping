@@ -7,14 +7,21 @@
     <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <form class="product-form" action="/admin/add-product" method="POST">
+        <% if(typeof messages != 'undefined') { %>
+        <div class="user-message user-message--error">
+            <%for(error of messages){%>
+            <p><%= error %></p>
+            <% } %>
+        </div>
+        <% } %>
+        <form enctype="multipart/form-data" class="product-form" action="/admin/add-product" method="POST">
             <div class="form-control">
                 <label for="title">Title</label>
                 <input type="text" name="title" id="title">
             </div>
             <div class="form-control">
-                <label for="imageUrl">Image URL</label>
-                <input type="text" name="imageUrl" id="imageUrl">
+                <label for="image">Image</label>
+                <input type="file" name="image" id="image">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

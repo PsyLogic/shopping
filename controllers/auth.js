@@ -24,7 +24,7 @@ exports.postLogin = (req, res, next) => {
   const validate = validationResult(req);
   let errors = [];
   if (validate.isEmpty()) {
-    User.findOne({ usernamed })
+    User.findOne({ username })
       .then(user => {
         if (!user || !bycrypt.compareSync(password, user.password)) {
           errors.push("Username or Password is incorrect");

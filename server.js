@@ -7,8 +7,11 @@ const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf")();
 const flash = require("connect-flash")();
+const multer = require("multer");
 
+const { _404, _500 } = require("./routes/erros");
 const User = require("./models/user");
+const { storage } = require("./config/storage");
 const app = express();
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
@@ -21,7 +24,11 @@ const store = new MongoDBStore({
 
 // Parsing Request Body by default
 app.use(bodyParder.urlencoded({ extended: false }));
-
+app.use(
+  multer({
+    storage: storage.storageConfig
+  }).single("image")
+);
 // Use EJS as default engine
 app.set("view engine", "ejs");
 
@@ -32,9 +39,6 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: store
-    // genid: function(req) {
-    //   return "blblablabla";
-    // }
   })
 );
 
@@ -81,18 +85,11 @@ app.use(shopRoutes);
 // Auth Routes
 app.use(authRoutes);
 
-// Redirect for to 404 if no rounting is found
-app.use((req, resp, next) => {
-  resp
-    .status(404)
-    .render("errors/404", { pageTitle: "Page Not Found", path: "/" });
-});
-
-app.use((error, req, res, nex) => {
-  res
-    .status(500)
-    .render("errors/500", { pageTitle: "Internal Error", path: "/" });
-});
+// Handling Errors
+// Redirect to 404 if no rounting is found
+app.use(_404);
+// Redirect to 500 for internal errors
+app.use(_500);
 
 // Listner
 mongoose
