@@ -1,2 +1,6 @@
 node_modules
+public/images/upload/*
+!public/images/upload/.keep
+storage/invoices/*
+!storage/invoices/.keep
 .env
