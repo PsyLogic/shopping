@@ -1,4 +1,5 @@
 const multer = require("multer");
+const { path } = require("../utils/helpers");
 exports.storage = {
   imagePath: "public/images",
   storageConfig: multer.diskStorage({
@@ -8,5 +9,6 @@ exports.storage = {
     filename: (req, file, cb) => {
       cb(null, Date.now() + "-" + file.originalname);
     }
-  })
+  }),
+  invoicePath: path + "/storage/invoices/"
 };

@@ -1,7 +1,2 @@
-const mongoose = require("mongoose");
-const {
-  Types: { ObjectId }
-} = mongoose;
-
-exports.validateObjectId = validateObjectId = id =>
-  ObjectId.isValid(id) && new ObjectId(id).toString() === id;
+const path = require("path");
+exports.path = path.dirname(process.mainModule.filename);

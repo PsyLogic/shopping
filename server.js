@@ -12,6 +12,7 @@ const multer = require("multer");
 const { _404, _500 } = require("./routes/erros");
 const User = require("./models/user");
 const { storage } = require("./config/storage");
+
 const app = express();
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
