@@ -187,10 +187,12 @@ form {
 
 .card__image {
   width: 100%;
+  text-align: center;
 }
 
 .card__image img {
-  width: 100%;
+  width: 200px;
+  height: 200px;
 }
 
 .card__actions {
@@ -246,6 +248,26 @@ form {
   border-color: red;
   background: rgb(255, 176, 176);
   color: red;
+}
+
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination a {
+  color: #00695c;
+  padding: 5px;
+  text-decoration: none;
+  margin: 0 3px;
+  border: 1px solid #00695c;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+  background-color: #00695c;
+  color: #FFF;
 }
 
 @media (min-width: 768px) {
