@@ -3,6 +3,7 @@ const { storage } = require("../config/storage");
 const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
+const stripe = require("stripe")(process.env.STRIP_TEST_SECRET_KEY);
 
 const ITEMS_PER_PAGE = 2;
 
@@ -88,26 +89,49 @@ exports.orders = (req, resp, next) => {
 };
 
 exports.addOrders = (req, resp, next) => {
+  const token = req.body.stripeToken;
+  let totalSum = 0;
+  let allProducts = [];
   req.user
     .populate("cart.items.productId")
     .execPopulate()
     .then(user => {
-      const products = user.cart.items.map(i => {
+      user.cart.items.forEach(p => {
+        totalSum += p.quantity * p.productId.price;
+      });
+
+      allProducts = user.cart.items.map(i => {
         return { product: { ...i.productId._doc }, quantity: i.quantity };
       });
+
+      return stripe.charges.create({
+        amount: totalSum * 100,
+        currency: "usd",
+        description: "Demo Order",
+        source: token,
+        metadata: { user: user._id.toString() }
+      });
+    })
+    .then(successPayment => {
+      console.log(successPayment.id);
+      console.log(successPayment.amount);
       const order = new Order({
         userId: req.user,
-        products: products
+        products: allProducts,
+        charge_id: successPayment.id,
+        amount: successPayment.amount / 100
       });
       return order.save();
     })
-    .then(result => {
-      return req.user.clearCart();
-    })
     .then(() => {
+      req.user.clearCart();
       resp.redirect("/orders");
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getInvoice = (req, resp, next) => {
@@ -155,10 +179,27 @@ exports.getInvoice = (req, resp, next) => {
     });
 };
 
-// exports.checkOut = (req, resp, next) => {
-//   resp.render("shop/checkout", {
-//     pageTitle: "Product List",
-//     path: "shop/checkout"
-//     isAuthenticated: req.session.isLoggedIn,
-//   });
-// };
+exports.getCheckout = (req, res, next) => {
+  req.user
+    .populate("cart.items.productId")
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items;
+      let total = 0;
+      products.forEach(p => {
+        total += p.quantity * p.productId.price;
+      });
+      res.render("shop/checkout", {
+        path: "/checkout",
+        pageTitle: "Checkout",
+        products: products,
+        totalSum: total,
+        strip_key: process.env.STRIP_TEST_PUBLIC_KEY
+      });
+    })
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};

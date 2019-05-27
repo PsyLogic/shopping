@@ -7,7 +7,13 @@ const OrderSchema = new mongoose.Schema({
       quantity: { type: Number, required: true }
     }
   ],
-  userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: " User" }
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: " User"
+  },
+  charge_id: { type: String, required: true },
+  amount: { type: Number, required: true }
 });
 
 module.exports = mongoose.model("Order", OrderSchema);

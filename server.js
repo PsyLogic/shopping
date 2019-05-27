@@ -12,6 +12,8 @@ const multer = require("multer");
 const { _404, _500 } = require("./routes/erros");
 const User = require("./models/user");
 const { storage } = require("./config/storage");
+const shopController = require("./controllers/shop");
+const isAuth = require("./middleware/authMiddleware");
 
 const app = express();
 const store = new MongoDBStore({
@@ -43,10 +45,10 @@ app.use(
   })
 );
 
-// Use CSRF
-app.use(csrf);
-// Use Flash Messages
-app.use(flash);
+app.use((req, resp, next) => {
+  resp.locals.isAuthenticated = req.session.isLoggedIn;
+  next();
+});
 
 // Call routes
 const adminRoutes = require("./routes/admin");
@@ -72,9 +74,14 @@ app.use((req, resp, next) => {
     });
 });
 
+app.post("/create-order", isAuth, shopController.addOrders);
+
+// Use CSRF
+app.use(csrf);
+// Use Flash Messages
+app.use(flash);
 // Share Variables in all Pages
 app.use((req, resp, next) => {
-  resp.locals.isAuthenticated = req.session.isLoggedIn;
   resp.locals.csrfToken = req.csrfToken();
   next();
 });
